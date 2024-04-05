@@ -5,10 +5,13 @@
  */
 package io.github.tristanjl.nb.externalcommmands;
 
+import java.awt.event.ActionEvent;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import javax.swing.AbstractAction;
+import static javax.swing.Action.NAME;
 import org.apache.commons.lang3.SystemUtils;
 import org.openide.loaders.*;
 import org.openide.awt.StatusDisplayer;
@@ -20,9 +23,26 @@ import org.openide.windows.*;
  *
  * @author tristanjl
  */
-public class ExternalCommandAction {
+public class ExternalCommandAction extends AbstractAction{
     InputOutput mOutput;
     String mOutputName;
+    final int commandIndex;
+
+    public ExternalCommandAction(int commandIndex) {
+        this.commandIndex = commandIndex;
+        putValue(NAME, getCommandName());
+    }
+    
+    private String getCommandName(){
+        String commandName = NbPreferences.forModule(ExternalCommands.class).get("commandName" + commandIndex, null);
+        return commandName;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        command(commandIndex);
+    }
+    
     public FileObject getFileObject()
     {
         DataObject dataObject = TopComponent.getRegistry().getActivated().getLookup().lookup(DataObject.class);
@@ -120,4 +140,5 @@ public class ExternalCommandAction {
         mOutput.getOut().close();
         mOutput.getErr().close();
     }
+
 }
